@@ -2,3 +2,25 @@
 build/
 
 thirdparty/
+
+.idea/
+
+CMakeFiles/
+
+*.vcxproj
+
+*.filters
+
+CMakeCache.txt
+
+*.sln
+
+x64/
+
+bin/
+
+bin-int/
+
+cmake_install.cmake
+
+*.DotSettings.user
