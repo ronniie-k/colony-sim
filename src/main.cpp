@@ -1,15 +1,27 @@
 #include <iostream>
 
-#include "Utils/Logging.hpp"
-#include "Utils/Time.hpp"
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
+
+#include "Vulkan/Core/Window.h"
+#include "Renderer/Renderer.h"
 
 int main()
 {
-    Logging::Init();
-    Logging::Debug("This is just a test. {} {:B}", "0xFF40:", 0x0F40);
-    
-    system("pause");
-    return 0;
-    Logging::Init();
-    Logging::Debug("This is just a test. {} {:B}", "0xFF40:", 0x0F40);
+	Window window;
+	window.create();
+
+	Renderer renderer;
+	renderer.initVulkan(&window);
+
+	std::cout << "fuck\n";
+	while (!glfwWindowShouldClose(window.getGLFWWindow()))
+	{
+		glfwPollEvents();
+		renderer.drawFrame();
+	}
+	renderer.waitIdle();
 }
