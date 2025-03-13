@@ -1,4 +1,5 @@
 #include "DebugHelper.h"
+#include "Utils/Logging.hpp"
 
 #include <unordered_map>
 
@@ -23,14 +24,15 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugHelper::debugCallback(VkDebugUtilsMessageSev
 	auto severityLevel = severityMap[messageSeverity];
 	if (m_validationLogLevel <= severityLevel)
 	{
+		// todo: fix the logging levels
 		if (severityLevel == LogLevel::eTrace)
-			; // spdlog::trace("validation layer:\t{}", pCallbackData->pMessage);
+			Logging::Info("validation layer:\t{}", pCallbackData->pMessage);
 		else if (severityLevel == LogLevel::eInfo)
-			; // spdlog::info("validation layer:\t{}", pCallbackData->pMessage);
+			Logging::Debug("validation layer:\t{}", pCallbackData->pMessage);
 		else if (severityLevel == LogLevel::eWarn)
-			; // spdlog::warn("validation layer:\t{}", pCallbackData->pMessage);
+			Logging::Warning("validation layer:\t{}", pCallbackData->pMessage);
 		else if (severityLevel == LogLevel::eErr)
-			; // spdlog::error("validation layer:\t{}", pCallbackData->pMessage);
+			Logging::Error("validation layer:\t{}", pCallbackData->pMessage);
 	}
 
 	return VK_FALSE;
@@ -91,7 +93,7 @@ void DebugHelper::create(vk::Instance instance)
 
 	if (createDebugUtilsMessengerFunc == nullptr)
 	{
-		; // spdlog::critical("could not create debug messenger, aborting");
+		Logging::Error("could not create debug messenger, aborting");
 		throw std::runtime_error("could not create debug messenger");
 	}
 
@@ -101,7 +103,7 @@ void DebugHelper::create(vk::Instance instance)
 
 	if (result != VK_SUCCESS)
 	{
-		; // spdlog::critical("could not create debug messenger, aborting");
+		Logging::Error("could not create debug messenger, aborting");
 		throw std::runtime_error("could not create debug messenger");
 	}
 }

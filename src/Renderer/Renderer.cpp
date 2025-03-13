@@ -20,6 +20,7 @@
 #include "Vulkan/Core/Swapchain.h"
 #include "Vulkan/Core/Utils.h"
 #include "Types/Vertex.h"
+#include "Utils/Logging.hpp"
 
 namespace
 {
@@ -71,7 +72,7 @@ void Renderer::initVulkan(Window* window)
 	//					  vk::ImageLayout::eShaderReadOnlyOptimal);
 	// m_texture.freeStagingBuffer();
 	// m_sampler.create(m_device);
-	// spdlog::info("pass");
+	Logging::Info("pass");
 }
 
 void Renderer::createCommandObjects()
@@ -184,8 +185,8 @@ void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer, uint32_t imgInde
 	cmdBuffer.setScissor(0, 1, &scissor);
 	cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 	cmdBuffer.bindIndexBuffer(m_indexBuffer.handle, 0, vk::IndexType::eUint16);
-	cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline.getLayout(), 0, 1,
-								 &m_pipelineDescriptor.getDescriptorSet(m_currentFrame), 0, nullptr);
+	// cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline.getLayout(), 0, 1,
+	//								 &m_pipelineDescriptor.getDescriptorSet(m_currentFrame), 0, nullptr);
 	cmdBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 	cmdBuffer.draw(3, 1, 0, 0);
 
@@ -311,7 +312,7 @@ void Renderer::transitionImageLayout(vk::Image img, vk::Format format, vk::Image
 	}
 	else
 	{
-		; // spdlog::warn("unsupported layout transition");
+		Logging::Warning("unsupported layout transition");
 	}
 
 	cmd.pipelineBarrier(srcStage, dstStage, vk::DependencyFlagBits(0), 0, nullptr, 0, nullptr, 1, &barrier);

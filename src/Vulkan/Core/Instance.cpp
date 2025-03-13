@@ -1,10 +1,10 @@
 #include "Instance.h"
-#include <vulkan/vulkan_enums.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include "Vulkan/Core/Utils.h"
+#include "Utils/Logging.hpp"
 
 VulkanInstance::VulkanInstance()
 {
@@ -27,7 +27,7 @@ void VulkanInstance::createInstance()
 {
 	if (!DebugHelper::validationLayersSupported())
 	{
-		// spdlog::critical("could not load validation layers");
+		Logging::Error("could not load validation layers");
 		throw std::runtime_error("could not load validation layers");
 	}
 
