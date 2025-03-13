@@ -15,9 +15,9 @@ public:
 
 	void addResource(vk::DescriptorType type, uint32_t count, vk::ShaderStageFlags stage);
 
-	vk::DescriptorSetLayout getLayout() { return m_layout; }
+	vk::DescriptorSetLayout getLayout() const { return m_layout; }
 	vk::DescriptorSet& getDescriptorSet(uint32_t index) { return m_descriptorSets[index]; }
-	void printDebugInfo();
+	void printDebugInfo() const;
 
 private:
 	void createDescriptorSetLayout();

@@ -19,7 +19,7 @@ struct QueueFamilyIndices
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
 
-	bool isValid() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+	bool isValid() const { return graphicsFamily.has_value() && presentFamily.has_value(); }
 };
 
 struct SwapchainSupportInfo
@@ -31,7 +31,7 @@ struct SwapchainSupportInfo
 
 inline void printAvailableExtensions()
 {
-	std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
+	const std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
 
 	Logging::Info("--available extensions--");
 	for (const auto& extension : extensions)
@@ -58,7 +58,7 @@ inline std::vector<char> readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 	std::filesystem::path cwd = std::filesystem::current_path();
-	std::cout << cwd.string() << std::endl;
+	Logging::Info("attempting to open file from directory: {}", cwd.string());
 
 	if (!file.is_open())
 	{

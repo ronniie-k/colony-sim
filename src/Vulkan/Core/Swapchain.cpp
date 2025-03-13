@@ -31,11 +31,11 @@ void VulkanSwapchain::createSurface(vk::Instance instance, GLFWwindow* window)
 
 void VulkanSwapchain::createSwapchain(GLFWwindow* window)
 {
-	vulkan_utils::SwapchainSupportInfo info = vulkan_utils::getSwapchainSupportInfo(m_physicalDevice, m_surface);
+	const vulkan_utils::SwapchainSupportInfo info = vulkan_utils::getSwapchainSupportInfo(m_physicalDevice, m_surface);
 
-	vk::SurfaceFormatKHR format = chooseSurfaceFormat(info.formats);
-	vk::PresentModeKHR presentMode = choosePresentMode(info.presentModes);
-	vk::Extent2D extent = chooseExtent(info.capabilities, window);
+	const vk::SurfaceFormatKHR format = chooseSurfaceFormat(info.formats);
+	const vk::PresentModeKHR presentMode = choosePresentMode(info.presentModes);
+	const vk::Extent2D extent = chooseExtent(info.capabilities, window);
 
 	uint32_t imgCount = info.capabilities.minImageCount + 1;
 
@@ -51,8 +51,8 @@ void VulkanSwapchain::createSwapchain(GLFWwindow* window)
 	createInfo.setImageArrayLayers(1);
 	createInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
 
-	vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(m_physicalDevice, m_surface);
-	std::array<uint32_t, 2> queueFamilyIndices = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	const vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(m_physicalDevice, m_surface);
+	const std::array<uint32_t, 2> queueFamilyIndices = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily)
 	{
@@ -118,7 +118,7 @@ void VulkanSwapchain::createFramebuffers(vk::RenderPass renderPass)
 	}
 }
 
-vk::SurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> formats)
+vk::SurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {
 	for (const auto& format : formats)
 	{
@@ -128,7 +128,7 @@ vk::SurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(const std::vector<vk::
 	return formats[0];
 }
 
-vk::PresentModeKHR VulkanSwapchain::choosePresentMode(const std::vector<vk::PresentModeKHR>& presentModes)
+vk::PresentModeKHR VulkanSwapchain::choosePresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const
 {
 	for (const auto& mode : presentModes)
 	{
@@ -138,7 +138,7 @@ vk::PresentModeKHR VulkanSwapchain::choosePresentMode(const std::vector<vk::Pres
 	return vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D VulkanSwapchain::chooseExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+vk::Extent2D VulkanSwapchain::chooseExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window) const
 {
 	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 	{

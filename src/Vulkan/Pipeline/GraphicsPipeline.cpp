@@ -25,7 +25,7 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::destroy()
 
 vk::PipelineShaderStageCreateInfo VulkanGraphicsPipeline::createShaderStage(const std::string& shaderSPV, vk::ShaderStageFlagBits stage)
 {
-	auto src = vulkan_utils::readFile(shaderSPV);
+	const auto src = vulkan_utils::readFile(shaderSPV);
 	vk::ShaderModuleCreateInfo shaderInfo;
 	shaderInfo.codeSize = src.size();
 	shaderInfo.pCode = reinterpret_cast<const uint32_t*>(src.data());
@@ -171,6 +171,7 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::createPipeline(const std::s
 	colorBlending.blendConstants[2] = 0.f;
 	colorBlending.blendConstants[3] = 0.f;
 
+	// fix this
 	vk::PipelineLayoutCreateInfo layoutCreateInfo;
 	// layoutCreateInfo.setLayoutCount = 1;
 	// layoutCreateInfo.pSetLayouts = &layout;

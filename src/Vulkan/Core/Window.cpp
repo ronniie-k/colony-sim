@@ -8,7 +8,7 @@ void Window::create()
 	const uint32_t height = 600;
 
 	glfwInit();
-	glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+	// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	m_window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);

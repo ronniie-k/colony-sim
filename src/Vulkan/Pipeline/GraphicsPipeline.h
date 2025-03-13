@@ -16,8 +16,8 @@ public:
 				vk::DescriptorSetLayout layout);
 	void destroy();
 
-	vk::RenderPass getRenderPass() { return m_renderPass; }
-	vk::PipelineLayout getLayout() { return m_layout; }
+	vk::RenderPass getRenderPass() const { return m_renderPass; }
+	vk::PipelineLayout getLayout() const { return m_layout; }
 
 	vk::Pipeline handle;
 
