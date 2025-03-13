@@ -4,8 +4,13 @@
 #include <fstream>
 #include <optional>
 
+#include <filesystem>
+#include <iostream>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#include "Utils/Logging.hpp"
 
 namespace vulkan_utils
 {
@@ -28,10 +33,10 @@ inline void printAvailableExtensions()
 {
 	std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
 
-	// spdlog::info("--available extensions--");
+	Logging::Info("--available extensions--");
 	for (const auto& extension : extensions)
 	{
-		; // spdlog::info("{}", extension.extensionName.data());
+		Logging::Info("{}", extension.extensionName.data());
 	}
 }
 
@@ -52,10 +57,12 @@ inline std::vector<const char*> getRequiredExtensions(bool validationLayersEnabl
 inline std::vector<char> readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
+	std::filesystem::path cwd = std::filesystem::current_path();
+	std::cout << cwd.string() << std::endl;
 
 	if (!file.is_open())
 	{
-		// spdlog::critical("failed to open file: {}", filename);
+		Logging::Error("failed to open file: {}", filename);
 		throw std::runtime_error("failed to open file!");
 	}
 

@@ -9,15 +9,20 @@
 #include "Vulkan/Core/Window.h"
 #include "Renderer/Renderer.h"
 
+#include "Utils/Logging.hpp"
+#include "Utils/Time.hpp"
+
+
 int main()
 {
+
+	Logging::Init();
 	Window window;
 	window.create();
 
 	Renderer renderer;
 	renderer.initVulkan(&window);
 
-	std::cout << "fuck\n";
 	while (!glfwWindowShouldClose(window.getGLFWWindow()))
 	{
 		glfwPollEvents();

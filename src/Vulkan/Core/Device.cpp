@@ -5,6 +5,7 @@
 #include "vk_mem_alloc.h"
 #include "Vulkan/Core/DebugHelper.h"
 #include "Vulkan/Core/Utils.h"
+#include "Utils/Logging.hpp"
 
 VulkanDevice::~VulkanDevice()
 {
@@ -87,7 +88,7 @@ void VulkanDevice::pickPhysicalDevice(vk::SurfaceKHR surface)
 		}
 	}
 
-	// spdlog::error("failed to find GPU");
+	Logging::Error("failed to find GPU");
 	throw std::runtime_error("failed to find a suitable GPU");
 }
 

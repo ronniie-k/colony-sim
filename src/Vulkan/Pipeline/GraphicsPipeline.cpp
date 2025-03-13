@@ -133,7 +133,7 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::createPipeline(const std::s
 	rasterizer.setRasterizerDiscardEnable(false);
 	rasterizer.setPolygonMode(vk::PolygonMode::eFill);
 	rasterizer.setLineWidth(1.f);
-	rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
+	rasterizer.setCullMode(vk::CullModeFlagBits::eNone);
 	rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
 	rasterizer.setDepthBiasEnable(false);
 	rasterizer.setDepthBiasConstantFactor(0.f);
@@ -172,8 +172,8 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::createPipeline(const std::s
 	colorBlending.blendConstants[3] = 0.f;
 
 	vk::PipelineLayoutCreateInfo layoutCreateInfo;
-	layoutCreateInfo.setLayoutCount = 1;
-	layoutCreateInfo.pSetLayouts = &layout;
+	// layoutCreateInfo.setLayoutCount = 1;
+	// layoutCreateInfo.pSetLayouts = &layout;
 
 	m_layout = m_device.createPipelineLayout(layoutCreateInfo);
 
@@ -195,7 +195,7 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::createPipeline(const std::s
 	handle = pipelines.value[0];
 
 	if (pipelines.result != vk::Result::eSuccess)
-		; // spdlog::critical("failed to create pipeline");
+		Logging::Error("failed to create pipeline");
 
 	for (vk::ShaderModule shader : m_cachedShaderModules)
 		m_device.destroyShaderModule(shader);

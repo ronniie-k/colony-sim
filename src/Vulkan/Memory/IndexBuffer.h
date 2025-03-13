@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Buffer.h"
-// #include <spdlog/spdlog.h>
+
+#include "Utils/Logging.hpp"
 
 class VulkanIndexBuffer : public VulkanBuffer
 {
@@ -10,7 +11,7 @@ public:
 	{
 #ifdef DEBUG
 		if (indices.size() >= 65534)
-			; // spdlog::warn("16 bit index buffer limit reached");
+			Logging::Warning("16 bit index buffer limit reached");
 #endif
 		vk::DeviceSize size = sizeof(indices[0]) * indices.size();
 		VulkanBuffer::create(device, size, vk::BufferUsageFlagBits::eIndexBuffer);

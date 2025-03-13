@@ -1,6 +1,6 @@
 #include "PipelineDescriptor.h"
 #include <cstdint>
-#include <iostream>
+
 #include <sys/types.h>
 #include <tuple>
 #include <vector>
@@ -14,7 +14,7 @@ void PipelineDescriptor::create(vk::Device device, uint32_t framesInFlight, cons
 	m_device = device;
 	createDescriptorSetLayout();
 	createDescriptorPool(framesInFlight);
-	// createDescriptorSets(framesInFlight, ubos);
+	createDescriptorSets(framesInFlight, ubos);
 	return;
 	vk::DescriptorSetLayoutCreateInfo layoutCreateInfo;
 	layoutCreateInfo.setBindings(m_layoutBindings);
@@ -73,7 +73,7 @@ void PipelineDescriptor::createDescriptorSets(uint32_t framesInFlight, const std
 	allocInfo.setSetLayouts(layouts);
 
 	m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
-
+	return;
 	for (int i = 0; i < framesInFlight; i++)
 	{
 		vk::DescriptorBufferInfo bufferInfo;
@@ -116,16 +116,17 @@ void PipelineDescriptor::addResource(vk::DescriptorType type, uint32_t count, vk
 
 void PipelineDescriptor::printDebugInfo()
 {
-	/*spdlog::info("\t\t--displaying layout info--");
-	spdlog::info("\t\t\tframes in flight: {}", Renderer::getFramesInFlight());
-	spdlog::info("\ttype\tcount\tstage");
-	spdlog::info("---------------------------------------------");
+	Logging::Info("\t\t--displaying layout info--");
+	Logging::Info("\t\t\tframes in flight: {}", Renderer::getFramesInFlight());
+	Logging::Info("\ttype\tcount\tstage");
+	Logging::Info("---------------------------------------------");
 	for (auto& tuple : m_debugInfo)
 	{
 		vk::DescriptorType type;
 		uint32_t count;
 		vk::ShaderStageFlags stage;
 		std::tie(type, count, stage) = tuple;
-		// spdlog::info("\t{}\t{}\t{}", type, count, stage);
-	}*/
+		// fix this
+		//  Logging::Info("\t{}\t{}\t{}", type, count, stage);
+	}
 }
