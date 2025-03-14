@@ -31,8 +31,8 @@ void VulkanInstance::createInstance()
 		throw std::runtime_error("could not load validation layers");
 	}
 
-	auto extensions = vulkan_utils::getRequiredExtensions(DebugHelper::validationLayersEnabled());
-	vk::ApplicationInfo appInfo("hello triangle", VK_MAKE_VERSION(1, 0, 0), "no engine", VK_MAKE_VERSION(1, 0, 0), vk::ApiVersion10);
+	const auto extensions = vulkan_utils::getRequiredExtensions(DebugHelper::validationLayersEnabled());
+	const vk::ApplicationInfo appInfo("hello triangle", VK_MAKE_VERSION(1, 0, 0), "no engine", VK_MAKE_VERSION(1, 0, 0), vk::ApiVersion10);
 
 	vk::InstanceCreateInfo info;
 	info.setPApplicationInfo(&appInfo);

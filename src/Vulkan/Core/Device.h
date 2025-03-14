@@ -21,8 +21,8 @@ public:
 	vk::PhysicalDevice getPhysicalDevice() { return m_physicalDevice; }
 	VmaAllocator getAllocator() { return m_allocator; }
 
-	const vk::Queue& getGraphicsQueue() const { return m_graphicsQueue; }
-	const vk::Queue& getPresentQueue() const { return m_presentQueue; }
+	vk::Queue getGraphicsQueue() const { return m_graphicsQueue; }
+	vk::Queue getPresentQueue() const { return m_presentQueue; }
 
 	vk::Device handle;
 
@@ -31,8 +31,8 @@ private:
 	void createDevice(vk::SurfaceKHR surface);
 	void createAllocator();
 
-	bool extensionsSupported(vk::PhysicalDevice device);
-	bool isDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
+	bool extensionsSupported(vk::PhysicalDevice device) const;
+	bool isDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface) const;
 
 private:
 	vk::Instance m_instance;

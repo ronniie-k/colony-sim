@@ -26,9 +26,9 @@ void VulkanDevice::destroy()
 
 void VulkanDevice::createDevice(vk::SurfaceKHR surface)
 {
-	std::array<float, 1> priorities = { 1.f };
-	vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(m_physicalDevice, surface);
-	std::unordered_set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	const std::array<float, 1> priorities = { 1.f };
+	const vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(m_physicalDevice, surface);
+	const std::unordered_set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
 	for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -77,7 +77,7 @@ void VulkanDevice::VulkanDevice::createAllocator()
 
 void VulkanDevice::pickPhysicalDevice(vk::SurfaceKHR surface)
 {
-	auto devices = m_instance.enumeratePhysicalDevices();
+	const auto devices = m_instance.enumeratePhysicalDevices();
 
 	for (const auto& device : devices)
 	{
@@ -92,9 +92,9 @@ void VulkanDevice::pickPhysicalDevice(vk::SurfaceKHR surface)
 	throw std::runtime_error("failed to find a suitable GPU");
 }
 
-bool VulkanDevice::extensionsSupported(vk::PhysicalDevice device)
+bool VulkanDevice::extensionsSupported(vk::PhysicalDevice device) const
 {
-	std::vector<vk::ExtensionProperties> extensions = device.enumerateDeviceExtensionProperties();
+	const std::vector<vk::ExtensionProperties> extensions = device.enumerateDeviceExtensionProperties();
 	std::unordered_set<std::string> requiredExtensions(m_extensions.begin(), m_extensions.end());
 
 	for (const auto& extension : extensions)
@@ -105,11 +105,11 @@ bool VulkanDevice::extensionsSupported(vk::PhysicalDevice device)
 	return requiredExtensions.empty();
 }
 
-bool VulkanDevice::isDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface)
+bool VulkanDevice::isDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface) const
 {
-	vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(device, surface);
+	const vulkan_utils::QueueFamilyIndices indices = vulkan_utils::findQueueFamilies(device, surface);
 
-	vk::PhysicalDeviceFeatures support = device.getFeatures();
+	const vk::PhysicalDeviceFeatures support = device.getFeatures();
 
 	bool swapchainSupport = false;
 	if (extensionsSupported(device))

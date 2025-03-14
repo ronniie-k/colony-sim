@@ -114,7 +114,7 @@ void PipelineDescriptor::addResource(vk::DescriptorType type, uint32_t count, vk
 	m_debugInfo.emplace_back(std::make_tuple(type, count, stage));
 }
 
-void PipelineDescriptor::printDebugInfo()
+void PipelineDescriptor::printDebugInfo() const
 {
 	Logging::Info("\t\t--displaying layout info--");
 	Logging::Info("\t\t\tframes in flight: {}", Renderer::getFramesInFlight());

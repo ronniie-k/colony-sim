@@ -18,9 +18,9 @@ public:
 	void recreate(GLFWwindow* window);
 
 	vk::Framebuffer getFramebuffer(uint32_t index) const { return m_frameBuffers[index]; }
-	vk::SurfaceKHR getSurface() { return m_surface; }
-	vk::Format getFormat() { return m_format; }
-	vk::Extent2D getExtent() { return m_extent; }
+	vk::SurfaceKHR getSurface() const { return m_surface; }
+	vk::Format getFormat() const { return m_format; }
+	vk::Extent2D getExtent() const { return m_extent; }
 
 	vk::SwapchainKHR handle;
 
@@ -28,9 +28,9 @@ private:
 	void createSwapchain(GLFWwindow* window);
 	void createImageViews();
 
-	vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> formats);
-	vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR>& presentModes);
-	vk::Extent2D chooseExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+	vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const;
+	vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const;
+	vk::Extent2D chooseExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window) const;
 
 private:
 	vk::Instance m_instance;

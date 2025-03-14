@@ -2,11 +2,15 @@
 
 #include <memory>
 #include <print>
+#include <iostream>
+#include <fstream>
 
 #ifdef WIN32
 #include <Windows.h>
 #else
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 
 std::shared_ptr<Console> Console::m_Instance = std::make_shared<Console>();
@@ -54,7 +58,26 @@ void Console::ThreadLoop()
 		}
 	}
 #else
-	system("konsole -e bash -c 'echo \"Debug Console\";");
+/*	const char* logPipe = "/tmp/debug_console_pipe";
+	unlink(logPipe);
+
+	if (mkfifo(logPipe, 0666) == -1)
+	{
+		std::println("Failed to create named pipe\n");
+		return;
+	}
+
+	system("konsole -e bash"); // 'echo' \"Debug Console\";");
+
+	std::ofstream logFile(logPipe);
+	if (!logFile)
+	{
+		std::cerr << "Failed to open log pipe\n";
+		return;
+	}
+
+	std::cout.rdbuf(logFile.rdbuf());
+	std::cerr.rdbuf(logFile.rdbuf());*/
 #endif
 
 	while (m_Running)
