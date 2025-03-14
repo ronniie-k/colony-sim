@@ -25,3 +25,7 @@ cmake_install.cmake
 
 *.DotSettings.user
 .cache/
+
+src/Debug/
+
+src/res/

@@ -181,34 +181,28 @@ void Console::SetColor(ConsoleColor color) const
 
 void Console::PrintMessage(const ConsoleMessage& message) const
 {
-	SetColor(ConsoleColor::Default);
-	std::print("(");
-	std::print("{}", message.time);
-	std::print(") ");
-	std::print("[");
+    SetColor(ConsoleColor::Default);
+    std::print("({}) [", message.time);
 
+    SetColor(message.type);
+    switch (message.type)
+    {
+    case ConsoleMessage::Type::Debug:
+        std::print("Debug");
+        break;
+    case ConsoleMessage::Type::Info:
+        std::print("Info");
+        break;
+    case ConsoleMessage::Type::Warning:
+        std::print("Warning");
+        break;
+    case ConsoleMessage::Type::Error:
+        std::print("Error");
+        break;
+    }
 
-	SetColor(message.type);
-	switch (message.type)
-	{
-	case ConsoleMessage::Type::Debug:
-		std::print("Debug");
-		break;
-	case ConsoleMessage::Type::Info:
-		std::print("Info");
-		break;
-	case ConsoleMessage::Type::Warning:
-		std::print("Warning");
-		break;
-	case ConsoleMessage::Type::Error:
-		std::print("Error");
-		break;
-	}
-
-	SetColor(ConsoleColor::Default);
-	std::print("] ");
-	std::print("{}", message.message);
-	std::print("\n");
+    SetColor(ConsoleColor::Default);
+    std::print("] {}\n", message.message);
 }
 
 std::weak_ptr<Console> Console::Get()
