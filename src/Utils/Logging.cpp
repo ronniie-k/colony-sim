@@ -1,5 +1,7 @@
 #include "Logging.hpp"
 
+#include "Types.hpp"
+
 std::weak_ptr<Console> Logging::m_Console;
 
 std::string Logging::GetCurrentTime()
@@ -7,7 +9,7 @@ std::string Logging::GetCurrentTime()
 	const time_t now = std::time(nullptr);
 	std::tm localTime;
 #ifdef WIN32
-	localtime_s(&localTime, &now);
+	discard(localtime_s(&localTime, &now));
 #else
 	localtime_r(&now, &localTime);
 #endif
