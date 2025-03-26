@@ -158,7 +158,7 @@ vk::Extent2D VulkanSwapchain::chooseExtent(const vk::SurfaceCapabilitiesKHR& cap
 	}
 }
 
-void VulkanSwapchain::VulkanSwapchain::VulkanSwapchain::recreate(GLFWwindow* window)
+void VulkanSwapchain::VulkanSwapchain::recreate(GLFWwindow* window)
 {
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);

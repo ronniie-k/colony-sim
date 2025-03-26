@@ -1,17 +1,18 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 
+#include "Utils/Logging.hpp"
 
 void Window::create()
 {
-	const uint32_t width = 800;
-	const uint32_t height = 600;
-
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 	glfwInit();
-	// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+	glfwSetErrorCallback([](int error, const char* description) { Logging::Error("GLFW Error ({}): {}", error, description); });
+
+
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	m_window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+	m_window = glfwCreateWindow(m_size.x, m_size.y, "Vulkan", nullptr, nullptr);
 	glfwSetWindowUserPointer(m_window, this);
 	glfwSetFramebufferSizeCallback(m_window, Window::onResize);
 }

@@ -122,4 +122,10 @@ inline SwapchainSupportInfo getSwapchainSupportInfo(vk::PhysicalDevice device, v
 	return info;
 }
 
+template<typename T, typename U>
+inline bool sameType(const T& toCheck)
+{
+	return std::is_same_v<T, U>(toCheck);
+}
+
 } // namespace vulkan_utils

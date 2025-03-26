@@ -1,4 +1,5 @@
 #include "Instance.h"
+#include <vulkan/vulkan.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -32,7 +33,7 @@ void VulkanInstance::createInstance()
 	}
 
 	const auto extensions = vulkan_utils::getRequiredExtensions(DebugHelper::validationLayersEnabled());
-	const vk::ApplicationInfo appInfo("hello triangle", VK_MAKE_VERSION(1, 0, 0), "no engine", VK_MAKE_VERSION(1, 0, 0), vk::ApiVersion10);
+	const vk::ApplicationInfo appInfo("hello triangle", VK_MAKE_VERSION(1, 3, 0), "no engine", VK_MAKE_VERSION(1, 3, 0), vk::ApiVersion13);
 
 	vk::InstanceCreateInfo info;
 	info.setPApplicationInfo(&appInfo);

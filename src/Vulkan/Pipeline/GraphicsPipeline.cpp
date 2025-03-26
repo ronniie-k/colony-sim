@@ -171,10 +171,9 @@ void VulkanGraphicsPipeline::VulkanGraphicsPipeline::createPipeline(const std::s
 	colorBlending.blendConstants[2] = 0.f;
 	colorBlending.blendConstants[3] = 0.f;
 
-	// fix this
 	vk::PipelineLayoutCreateInfo layoutCreateInfo;
-	// layoutCreateInfo.setLayoutCount = 1;
-	// layoutCreateInfo.pSetLayouts = &layout;
+	layoutCreateInfo.setLayoutCount = 1;
+	layoutCreateInfo.pSetLayouts = &layout;
 
 	m_layout = m_device.createPipelineLayout(layoutCreateInfo);
 

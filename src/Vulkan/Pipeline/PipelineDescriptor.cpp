@@ -6,16 +6,21 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 #include "Renderer/Renderer.h"
+#include "Utils/Logging.hpp"
 
 void PipelineDescriptor::create(vk::Device device, uint32_t framesInFlight, const std::vector<VulkanUniformBuffer>& ubos)
 {
 	m_device = device;
-	createDescriptorSetLayout();
-	createDescriptorPool(framesInFlight);
-	createDescriptorSets(framesInFlight, ubos);
-	return;
+	// createDescriptorSetLayout();
+	// createDescriptorPool(framesInFlight);
+	// createDescriptorSets(framesInFlight, ubos);
+
+
+	// return;
 	vk::DescriptorSetLayoutCreateInfo layoutCreateInfo;
 	layoutCreateInfo.setBindings(m_layoutBindings);
 
@@ -26,6 +31,14 @@ void PipelineDescriptor::create(vk::Device device, uint32_t framesInFlight, cons
 	poolCreateInfo.setMaxSets(m_maxSets);
 
 	m_descriptorPool = m_device.createDescriptorPool(poolCreateInfo);
+
+	std::vector<vk::DescriptorSetLayout> layouts(framesInFlight, m_layout);
+
+	vk::DescriptorSetAllocateInfo allocInfo;
+	allocInfo.setDescriptorPool(m_descriptorPool);
+	allocInfo.setDescriptorSetCount(framesInFlight);
+	allocInfo.setSetLayouts(layouts);
+	m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
 }
 
 void PipelineDescriptor::destroy()
@@ -128,5 +141,63 @@ void PipelineDescriptor::printDebugInfo() const
 		std::tie(type, count, stage) = tuple;
 		// fix this
 		//  Logging::Info("\t{}\t{}\t{}", type, count, stage);
+	}
+}
+
+void PipelineDescriptor::writeDescriptor(vk::DescriptorType type, vk::Buffer buffer, vk::DeviceSize size, uint32_t binding)
+{
+	if (m_descriptorSets.size() == 0)
+	{
+		Logging::Warning("trying to use uninitialized descriptor set");
+		return;
+	}
+
+	vk::DescriptorBufferInfo bufferInfo;
+	bufferInfo.setBuffer(buffer);
+	bufferInfo.setOffset(0);
+	bufferInfo.setRange(size);
+
+	for (int i = 0; i < m_descriptorSets.size(); i++)
+	{
+		vk::WriteDescriptorSet write;
+		write.setDstSet(m_descriptorSets[i]);
+		write.setDstBinding(binding);
+		write.setDstArrayElement(0);
+		write.setDescriptorType(type);
+		write.setDescriptorCount(1);
+		write.setPBufferInfo(&bufferInfo);
+
+		m_device.updateDescriptorSets(1, &write, 0, nullptr);
+	}
+}
+
+void PipelineDescriptor::writeDescriptor(vk::DescriptorType type,
+										 vk::ImageView imageView,
+										 vk::ImageLayout layout,
+										 vk::Sampler sampler,
+										 uint32_t binding)
+{
+	if (m_descriptorSets.size() == 0)
+	{
+		Logging::Warning("trying to use uninitialized descriptor set");
+		return;
+	}
+
+	vk::DescriptorImageInfo imageInfo;
+	imageInfo.setImageLayout(layout);
+	imageInfo.setImageView(imageView);
+	imageInfo.setSampler(sampler);
+
+	for (int i = 0; i < m_descriptorSets.size(); i++)
+	{
+		vk::WriteDescriptorSet write;
+		write.setDstSet(m_descriptorSets[i]);
+		write.setDstBinding(binding);
+		write.setDstArrayElement(0);
+		write.setDescriptorType(type);
+		write.setDescriptorCount(1);
+		write.setPImageInfo(&imageInfo);
+
+		m_device.updateDescriptorSets(1, &write, 0, nullptr);
 	}
 }

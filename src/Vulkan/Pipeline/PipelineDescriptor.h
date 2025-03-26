@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_enums.hpp>
 #include "Vulkan/Memory/UniformBuffer.h"
 
 using DebugDescriptorInfo = std::tuple<vk::DescriptorType, uint32_t, vk::ShaderStageFlags>;
@@ -14,6 +13,9 @@ public:
 	void destroy();
 
 	void addResource(vk::DescriptorType type, uint32_t count, vk::ShaderStageFlags stage);
+
+	void writeDescriptor(vk::DescriptorType type, vk::Buffer buffer, vk::DeviceSize size, uint32_t binding);
+	void writeDescriptor(vk::DescriptorType type, vk::ImageView imageView, vk::ImageLayout layout, vk::Sampler sampler, uint32_t binding);
 
 	vk::DescriptorSetLayout getLayout() const { return m_layout; }
 	vk::DescriptorSet& getDescriptorSet(uint32_t index) { return m_descriptorSets[index]; }

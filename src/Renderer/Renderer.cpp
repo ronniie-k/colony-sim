@@ -1,13 +1,18 @@
 #include "Renderer.h"
+#include "Renderer/Types/QuadShaderData.h"
+#include "Vulkan/Memory/ShaderStorageBuffer.h"
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
-#include <filesystem>
+#include <cstring>
+#include <glm/ext/vector_float2.hpp>
+#include <glm/fwd.hpp>
+#include <glm/trigonometric.hpp>
 #include <stdexcept>
-#include <chrono>
 
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_to_string.hpp>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -21,13 +26,14 @@
 #include "Vulkan/Core/Utils.h"
 #include "Types/Vertex.h"
 #include "Utils/Logging.hpp"
+#include "Utils/Time.hpp"
 
 namespace
 {
-const std::vector<Vertex> vertices = { { { -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f } },
-									   { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
-									   { { 0.5f, 0.5f }, { 0.0f, 1.0f, 1.0f } },
-									   { { -0.5f, 0.5f }, { 1.0f, 0.0f, 1.0f } } };
+const std::vector<Vertex> vertices = { { { -0.05f, -0.05f }, { 1.0f, 0.0f, 1.0f } },
+									   { { 0.05f, -0.05f }, { 0.0f, 1.0f, 0.0f } },
+									   { { 0.05f, 0.05f }, { 0.0f, 1.0f, 1.0f } },
+									   { { -0.05f, 0.05f }, { 1.0f, 0.0f, 1.0f } } };
 const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
 } // namespace
 
@@ -39,6 +45,8 @@ Renderer::Renderer()
 
 void Renderer::initVulkan(Window* window)
 {
+	auto resolution = window->getSize();
+	m_invResolution = { 1.f / resolution.x, 1.f / resolution.y, 1.f, 1.f };
 	m_window = window;
 	auto* glfwWindow = m_window->getGLFWWindow();
 
@@ -50,17 +58,23 @@ void Renderer::initVulkan(Window* window)
 	createCommandObjects();
 	createSyncObjects();
 
-	/*for (int i = 0; i < m_framesInFlight; i++)
+
+	m_pipelineDescriptor.addResource(vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_pipelineDescriptor.create(m_device.handle, m_framesInFlight, m_uniformBuffers);
+
+	for (int i = 0; i < m_framesInFlight; i++)
 	{
-		VulkanUniformBuffer buffer;
-		buffer.create(m_device);
-		m_uniformBuffers.emplace_back(std::move(buffer));
-	}*/
+		vk::DeviceSize size = 320;
+		VulkanStoageBuffer buffer;
+		buffer.create(m_device, size);
+		m_storageBuffers.emplace_back(std::move(buffer));
+	}
+
+	for (int i = 0; i < m_framesInFlight; i++)
+		m_pipelineDescriptor.writeDescriptor(vk::DescriptorType::eStorageBuffer, m_storageBuffers[i].handle, sizeof(QuadShaderData), 0);
 
 	m_vertexBuffer.create(m_device, vertices);
 	m_indexBuffer.create(m_device, indices);
-
-	m_pipelineDescriptor.create(m_device.handle, m_framesInFlight, m_uniformBuffers);
 
 	m_pipeline.create(m_device.handle, m_swapchain, "vert.spv", "frag.spv", m_pipelineDescriptor.getLayout());
 	m_swapchain.createFramebuffers(m_pipeline.getRenderPass());
@@ -72,7 +86,7 @@ void Renderer::initVulkan(Window* window)
 	//					  vk::ImageLayout::eShaderReadOnlyOptimal);
 	// m_texture.freeStagingBuffer();
 	// m_sampler.create(m_device);
-	Logging::Info("pass");
+	Logging::Info("passs");
 }
 
 void Renderer::createCommandObjects()
@@ -148,7 +162,7 @@ void Renderer::endSingleTimeCommands(vk::CommandBuffer cmd)
 }
 
 
-void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer, uint32_t imgIndex)
+void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer)
 {
 	vk::CommandBufferBeginInfo info;
 	cmdBuffer.begin(info);
@@ -157,7 +171,7 @@ void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer, uint32_t imgInde
 
 	vk::RenderPassBeginInfo renderPassInfo;
 	renderPassInfo.setRenderPass(m_pipeline.getRenderPass());
-	renderPassInfo.setFramebuffer(m_swapchain.getFramebuffer(imgIndex));
+	renderPassInfo.setFramebuffer(m_swapchain.getFramebuffer(m_imageIndex));
 	renderPassInfo.renderArea.offset = vk::Offset2D { 0, 0 };
 	renderPassInfo.renderArea.extent = m_swapchain.getExtent();
 	renderPassInfo.clearValueCount = 1;
@@ -185,10 +199,9 @@ void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer, uint32_t imgInde
 	cmdBuffer.setScissor(0, 1, &scissor);
 	cmdBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
 	cmdBuffer.bindIndexBuffer(m_indexBuffer.handle, 0, vk::IndexType::eUint16);
-	// cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline.getLayout(), 0, 1,
-	//								 &m_pipelineDescriptor.getDescriptorSet(m_currentFrame), 0, nullptr);
+	cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipeline.getLayout(), 0, 1,
+								 &m_pipelineDescriptor.getDescriptorSet(m_currentFrame), 0, nullptr);
 	cmdBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
-	cmdBuffer.draw(3, 1, 0, 0);
 
 	cmdBuffer.endRenderPass();
 	cmdBuffer.end();
@@ -196,82 +209,49 @@ void Renderer::recordCommandBuffer(vk::CommandBuffer cmdBuffer, uint32_t imgInde
 
 void Renderer::drawFrame()
 {
-	VulkanSwapchain& swapchain = m_swapchain;
-
-	(void) m_device.handle.waitForFences(1, &m_inFlightFences[m_currentFrame], true, UINT64_MAX);
-
-	auto nextImgResult = m_device.handle.acquireNextImageKHR(swapchain.handle, UINT64_MAX, m_imgAvailableSemaphores[m_currentFrame]);
-	uint32_t imgIndex = nextImgResult.value;
-
-	if (nextImgResult.result == vk::Result::eErrorOutOfDateKHR)
-	{
-		swapchain.recreate(m_window->getGLFWWindow());
+	if (!beginFrame())
 		return;
-	}
-	else if (nextImgResult.result != vk::Result::eSuccess && nextImgResult.result != vk::Result::eSuboptimalKHR)
-	{
-		throw std::runtime_error("failed to acquire swapchain img");
-	}
-
-	(void) m_device.handle.resetFences(1, &m_inFlightFences[m_currentFrame]);
-
 	updateUniformBuffer();
-
-	m_commandBuffers[m_currentFrame].reset();
-	recordCommandBuffer(m_commandBuffers[m_currentFrame], imgIndex);
-
-	std::array<vk::Semaphore, 1> waitSemaphores = { m_imgAvailableSemaphores[m_currentFrame] };
-	std::array<vk::Semaphore, 1> signalSemaphores = { m_renderFinishedSemaphores[m_currentFrame] };
-	std::array<vk::PipelineStageFlags, 1> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-	std::array<vk::CommandBuffer, 1> cmdBuffers = { m_commandBuffers[m_currentFrame] };
-	vk::SubmitInfo submitInfo;
-	submitInfo.setWaitSemaphores(waitSemaphores);
-	submitInfo.setSignalSemaphores(signalSemaphores);
-	submitInfo.setWaitDstStageMask(waitStages);
-	submitInfo.setCommandBuffers(cmdBuffers);
-
-	(void) m_device.getGraphicsQueue().submit(1, &submitInfo, m_inFlightFences[m_currentFrame]);
-
-	vk::PresentInfoKHR presentInfo;
-	presentInfo.setWaitSemaphores(signalSemaphores);
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = &swapchain.handle;
-	presentInfo.pImageIndices = &imgIndex;
-
-	vk::Result result = m_device.getPresentQueue().presentKHR(presentInfo);
-
-	if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || m_window->hasResized())
-	{
-		m_window->setResized(false);
-		swapchain.recreate(m_window->getGLFWWindow());
-	}
-	else if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to present swapchain img");
-	}
-
-	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
+	recordCommandBuffer(m_commandBuffers[m_currentFrame]);
+	endFrame();
 }
 
 void Renderer::updateUniformBuffer()
 {
-	/*	static auto startTime = std::chrono::high_resolution_clock::now();
+	// for testing
+	/*static float scaleDirection = 1.f;
+	static float scaleFactor = 2.f;
+	static glm::vec2 position = { 0.f, 0.f };
+	scaleFactor += 0.001f * scaleDirection;
 
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	position = { glm::cos(Time::GetTime()), glm::sin(Time::GetTime()) };
 
-		auto swapchianExtent = m_swapchain.getExtent();
+	if (scaleFactor >= 6.f || scaleFactor <= 0.25f)
+	{
+		scaleDirection *= -1;
+	}
+	QuadShaderData data;
+	data.positionAndScale = { position.x, position.y, scaleFactor, scaleFactor };
+	data.rotationAndColor = { 2.f * Time::GetTime(), 1.0, 0.5, .75 };
+	m_storageBuffers[m_currentFrame].copyData(&data, sizeof(QuadShaderData));*/
 
-		UniformBufferData ubo {};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapchianExtent.width / (float) swapchianExtent.height, 0.1f, 10.0f);
-
-		ubo.proj[1][1] *= -1;
-
-		m_uniformBuffers[m_currentFrame].copyData(&ubo, sizeof(UniformBufferData));*/
+	int copies = 0;
+	size_t blockSize = sizeof(QuadShaderData);
+	std::vector<QuadShaderData> datas;
+	for (const Quad* quad : m_quadsToRender)
+	{
+		QuadShaderData data;
+		memcpy(&data, quad, sizeof(QuadShaderData));
+		data.positionAndScale *= m_invResolution;
+		datas.emplace_back(std::move(data));
+		// Logging::Debug("quad data after memcpy: {}, {}, {}, {}", data.positionAndScale.x, data.positionAndScale.y,
+		// data.positionAndScale.z,
+		// data.positionAndScale.w);
+		// Logging::Debug("rotation: {}", data.rotationAndColor.x);
+	}
+	m_storageBuffers[m_currentFrame].copyData(datas.data(), sizeof(QuadShaderData) * datas.size());
+	m_quadsToRender.clear();
+	// something to do with instance count maybe
 }
 
 void Renderer::transitionImageLayout(vk::Image img, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -346,4 +326,91 @@ void Renderer::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t wi
 	cmd.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
 	endSingleTimeCommands(cmd);
+}
+
+bool Renderer::beginFrame()
+{
+	// sadly, renderdoc only supports x11 so we have had to make our renderer use
+	// x11 with xwayland. and for some reason, only on x11, this code here crashes without the try/catch block
+	VulkanSwapchain& swapchain = m_swapchain;
+	try
+	{
+		(void) m_device.handle.waitForFences(1, &m_inFlightFences[m_currentFrame], true, UINT64_MAX);
+
+		auto nextImgResult = m_device.handle.acquireNextImageKHR(swapchain.handle, UINT64_MAX, m_imgAvailableSemaphores[m_currentFrame]);
+		m_imageIndex = nextImgResult.value;
+
+		if (nextImgResult.result == vk::Result::eErrorOutOfDateKHR)
+		{
+			swapchain.recreate(m_window->getGLFWWindow());
+			return false;
+		}
+		else if (nextImgResult.result != vk::Result::eSuccess && nextImgResult.result != vk::Result::eSuboptimalKHR)
+		{
+			throw std::runtime_error("failed to acquire swapchain img");
+		}
+
+		(void) m_device.handle.resetFences(1, &m_inFlightFences[m_currentFrame]);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Exception in beginFrame: " << e.what() << std::endl;
+
+		swapchain.recreate(m_window->getGLFWWindow());
+		return false;
+	}
+
+	m_commandBuffers[m_currentFrame].reset();
+	return true;
+}
+
+void Renderer::endFrame()
+{
+	VulkanSwapchain& swapchain = m_swapchain;
+
+	std::array<vk::Semaphore, 1> waitSemaphores = { m_imgAvailableSemaphores[m_currentFrame] };
+	std::array<vk::Semaphore, 1> signalSemaphores = { m_renderFinishedSemaphores[m_currentFrame] };
+	std::array<vk::PipelineStageFlags, 1> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+	std::array<vk::CommandBuffer, 1> cmdBuffers = { m_commandBuffers[m_currentFrame] };
+	vk::SubmitInfo submitInfo;
+	submitInfo.setWaitSemaphores(waitSemaphores);
+	submitInfo.setSignalSemaphores(signalSemaphores);
+	submitInfo.setWaitDstStageMask(waitStages);
+	submitInfo.setCommandBuffers(cmdBuffers);
+
+	(void) m_device.getGraphicsQueue().submit(1, &submitInfo, m_inFlightFences[m_currentFrame]);
+
+	vk::PresentInfoKHR presentInfo;
+	presentInfo.setWaitSemaphores(signalSemaphores);
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &swapchain.handle;
+	presentInfo.pImageIndices = &m_imageIndex;
+
+	try
+	{
+		vk::Result result = m_device.getPresentQueue().presentKHR(presentInfo);
+
+		if (result == vk::Result::eSuboptimalKHR || m_window->hasResized())
+		{
+			m_window->setResized(false);
+			swapchain.recreate(m_window->getGLFWWindow());
+		}
+	}
+	catch (vk::OutOfDateKHRError& e)
+	{
+		m_window->setResized(false);
+		swapchain.recreate(m_window->getGLFWWindow());
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error during present: " << e.what() << std::endl;
+		throw;
+	}
+
+	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
+}
+
+void Renderer::draw(const Quad& quad)
+{
+	m_quadsToRender.emplace_back(&quad);
 }

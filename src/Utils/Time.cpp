@@ -4,17 +4,17 @@ using namespace std::chrono;
 
 Time::TimeSince::TimeSince()
 {
-    timePoint = high_resolution_clock::now();
+	timePoint = high_resolution_clock::now();
 }
 
 Time::TimeSince::TimeSince(double since)
 {
-    timePoint = time_point_cast<microseconds>(high_resolution_clock::now() - duration_cast<microseconds>(duration<float>(since)));
+	timePoint = time_point_cast<microseconds>(high_resolution_clock::now() - duration_cast<microseconds>(duration<float>(since)));
 }
 
 Time::TimeSince::operator double() const
 {
-    return static_cast<float>(duration_cast<microseconds>(high_resolution_clock::now() - timePoint).count()) / 10e5f;
+	return static_cast<float>(duration_cast<microseconds>(high_resolution_clock::now() - timePoint).count()) / 10e5f;
 }
 
 float Time::timeScale = 1.f;
@@ -28,40 +28,40 @@ float Time::deltaTime = 0.f;
 
 void Time::Init()
 {
-    appStart = high_resolution_clock::now();
-    curFrame = appStart;
-    lastFrame = appStart;
+	appStart = high_resolution_clock::now();
+	curFrame = appStart;
+	lastFrame = appStart;
 }
 
 void Time::Update()
 {
-    CalculateCurrentFrame();
-    CalculateTime();
-    CalculateDeltaTime();
+	CalculateCurrentFrame();
+	CalculateTime();
+	CalculateDeltaTime();
 }
 
 void Time::CalculateCurrentFrame()
 {
-    curFrame = high_resolution_clock::now();
+	curFrame = high_resolution_clock::now();
 }
 
 void Time::CalculateTime()
 {
-    time = static_cast<float>(duration_cast<milliseconds>(curFrame - appStart).count()) / 10e3f;
+	time = static_cast<float>(duration_cast<milliseconds>(curFrame - appStart).count()) / 10e2f;
 }
 
 void Time::CalculateDeltaTime()
 {
-    deltaTime = static_cast<float>(duration_cast<microseconds>(curFrame - lastFrame).count()) / 10e5f;
-    lastFrame = curFrame;
+	deltaTime = static_cast<float>(duration_cast<microseconds>(curFrame - lastFrame).count()) / 10e5f;
+	lastFrame = curFrame;
 }
 
 float Time::GetTime()
 {
-    return time;
+	return time;
 }
 
 float Time::GetDeltaTime()
 {
-    return deltaTime * timeScale;
+	return deltaTime * timeScale;
 }

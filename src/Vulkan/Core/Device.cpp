@@ -1,6 +1,7 @@
 #include "Device.h"
 
 #include <unordered_set>
+#include <vulkan/vulkan_structs.hpp>
 
 #include "vk_mem_alloc.h"
 #include "Vulkan/Core/DebugHelper.h"
@@ -43,10 +44,14 @@ void VulkanDevice::createDevice(vk::SurfaceKHR surface)
 	vk::PhysicalDeviceFeatures deviceFeatures;
 	deviceFeatures.setSamplerAnisotropy(true);
 
+	vk::PhysicalDeviceVulkan11Features deviceFeaturesVk11;
+	deviceFeaturesVk11.setShaderDrawParameters(true);
+
 	vk::DeviceCreateInfo createInfo;
 	createInfo.setQueueCreateInfos(queueCreateInfos);
 	createInfo.setPEnabledFeatures(&deviceFeatures);
 	createInfo.setPEnabledExtensionNames(m_extensions);
+	createInfo.setPNext(&deviceFeaturesVk11);
 
 	if (DebugHelper::validationLayersEnabled())
 		createInfo.setPEnabledLayerNames(DebugHelper::getValidationLayers());
