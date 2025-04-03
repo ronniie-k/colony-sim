@@ -330,35 +330,24 @@ void Renderer::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t wi
 
 bool Renderer::beginFrame()
 {
-	// sadly, renderdoc only supports x11 so we have had to make our renderer use
-	// x11 with xwayland. and for some reason, only on x11, this code here crashes without the try/catch block
 	VulkanSwapchain& swapchain = m_swapchain;
-	try
+	
+	(void) m_device.handle.waitForFences(1, &m_inFlightFences[m_currentFrame], true, UINT64_MAX);
+
+	auto nextImgResult = m_device.handle.acquireNextImageKHR(swapchain.handle, UINT64_MAX, m_imgAvailableSemaphores[m_currentFrame]);
+	m_imageIndex = nextImgResult.value;
+
+	if (nextImgResult.result == vk::Result::eErrorOutOfDateKHR)
 	{
-		(void) m_device.handle.waitForFences(1, &m_inFlightFences[m_currentFrame], true, UINT64_MAX);
-
-		auto nextImgResult = m_device.handle.acquireNextImageKHR(swapchain.handle, UINT64_MAX, m_imgAvailableSemaphores[m_currentFrame]);
-		m_imageIndex = nextImgResult.value;
-
-		if (nextImgResult.result == vk::Result::eErrorOutOfDateKHR)
-		{
-			swapchain.recreate(m_window->getGLFWWindow());
-			return false;
-		}
-		else if (nextImgResult.result != vk::Result::eSuccess && nextImgResult.result != vk::Result::eSuboptimalKHR)
-		{
-			throw std::runtime_error("failed to acquire swapchain img");
-		}
-
-		(void) m_device.handle.resetFences(1, &m_inFlightFences[m_currentFrame]);
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "Exception in beginFrame: " << e.what() << std::endl;
-
 		swapchain.recreate(m_window->getGLFWWindow());
 		return false;
 	}
+	else if (nextImgResult.result != vk::Result::eSuccess && nextImgResult.result != vk::Result::eSuboptimalKHR)
+	{
+		throw std::runtime_error("failed to acquire swapchain img");
+	}
+
+	(void) m_device.handle.resetFences(1, &m_inFlightFences[m_currentFrame]);
 
 	m_commandBuffers[m_currentFrame].reset();
 	return true;
@@ -400,11 +389,6 @@ void Renderer::endFrame()
 	{
 		m_window->setResized(false);
 		swapchain.recreate(m_window->getGLFWWindow());
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "Error during present: " << e.what() << std::endl;
-		throw;
 	}
 
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;

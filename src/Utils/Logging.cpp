@@ -6,11 +6,7 @@ std::string Logging::GetCurrentTime()
 {
 	const time_t now = std::time(nullptr);
 	std::tm localTime;
-#ifdef WIN32
 	localtime_s(&localTime, &now);
-#else
-	localtime_r(&now, &localTime);
-#endif
 
 	const auto format = "%H:%M:%S";
 

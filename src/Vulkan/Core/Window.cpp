@@ -5,7 +5,7 @@
 
 void Window::create()
 {
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	//glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 	glfwInit();
 	glfwSetErrorCallback([](int error, const char* description) { Logging::Error("GLFW Error ({}): {}", error, description); });
 

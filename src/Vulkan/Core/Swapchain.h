@@ -5,7 +5,7 @@
 
 #include "Vulkan/Core/Device.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 
 class VulkanSwapchain
 {

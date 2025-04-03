@@ -5,13 +5,9 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef WIN32
 #include <Windows.h>
-#else
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#endif
 
 std::shared_ptr<Console> Console::m_Instance = std::make_shared<Console>();
 
@@ -41,7 +37,7 @@ void Console::ThreadLoop()
 	if (allocated)
 	{
 		(void) freopen_s(&m_Console, "CONOUT$", "w", stdout);
-		SetConsoleTitle("Debug Console");
+		SetConsoleTitle(L"Debug Console");
 	}
 	else
 	{
@@ -52,8 +48,9 @@ void Console::ThreadLoop()
 			LPVOID lpMsgBuf;
 			auto flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
 			auto langId = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-			FormatMessage(flags, nullptr, error, langId, reinterpret_cast<LPSTR>(&lpMsgBuf), 0, nullptr);
-			std::println("{}", static_cast<LPCTSTR>(lpMsgBuf));
+			FormatMessageA(flags, nullptr, error, langId, reinterpret_cast<LPSTR>(&lpMsgBuf), 0, nullptr);
+			//std::println("{}", static_cast<LPCTSTR>(lpMsgBuf));
+			std::wcout << std::format(L"{}\n", lpMsgBuf) << std::endl;
 			return;
 		}
 	}

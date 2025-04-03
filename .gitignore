@@ -1,6 +1,8 @@
 
 build/
 
+res/shaders/output/
+
 thirdparty/
 
 .idea/
@@ -24,4 +26,9 @@ bin-int/
 cmake_install.cmake
 
 *.DotSettings.user
+
+*.vcxproj.user
+
 .cache/
+
+.vs/

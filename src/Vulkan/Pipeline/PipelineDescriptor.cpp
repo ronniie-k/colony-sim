@@ -87,7 +87,7 @@ void PipelineDescriptor::createDescriptorSets(uint32_t framesInFlight, const std
 
 	m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
 	return;
-	for (int i = 0; i < framesInFlight; i++)
+	for (uint32_t i = 0; i < framesInFlight; i++)
 	{
 		vk::DescriptorBufferInfo bufferInfo;
 		bufferInfo.setBuffer(ubos[i].handle);
